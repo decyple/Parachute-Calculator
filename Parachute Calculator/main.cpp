@@ -19,7 +19,7 @@ struct ParachuteParameters
 	float Mass;
 	float Speed_of_Impact;
 	float Drag_Coefficient;
-	units Unit;
+	units Unit = Unknown;
 };
 
 
@@ -167,12 +167,10 @@ unit_question:
 	if(tmp == "i" || tmp == "imperial")
 	{
 		user_data_units = Imperial;
-		//std::cout << "Imperial has been selected..." << std::endl;
 	}
 	else if (tmp == "m" || tmp == "metric")
 	{
 		user_data_units = Metric;
-		//std::cout << "Metric has been selected..." << std::endl;
 	}
 	else
 	{
@@ -230,18 +228,181 @@ drag_question:
 }
 
 
+void printHelp()
+{
+	std::cerr << "Usage Example: \n\n"
+			  << "\t Parachute Calculator --mass 1.1 --drag 1.5 --impact 20 --units imperial\n"
+			  << "\t Parachute Calculator -m 23 -i 21 -d 1.25 -u imperial\n\n"
+			  << "Options:\n\n"
+			  << "\t-h,  --help\t\t\tShow this help message\n"
+			  << "\t-m,  --mass\t\t\tObject Mass\n"
+			  << "\t-d,  --drag\t\t\tDrag Coefficient\n"
+			  << "\t-i,  --impact\t\tSpeed of Impact\n"
+			  << "\t-u,  --units\t\tUnits of measurement\n"
+			  << std::endl;
+}
+
+
+void confirmInput(ParachuteParameters _input)
+{
+	
+	if(_input.Unit != Metric && _input.Unit != Imperial)
+	{
+		
+	unit_question:
+		std::string tmp;
+		std::cout << "Imperial (feet, pounds, etc...) or Metric (meters, kilograms, etc...) units?\n";
+		std::cout << "[i|m|imperial|metric]> ";
+		std::cin >> tmp;
+		
+		if(tmp == "i" || tmp == "imperial")
+		{
+			_input.Unit = Imperial;
+		}
+		else if (tmp == "m" || tmp == "metric")
+		{
+			_input.Unit = Metric;
+		}
+		else
+		{
+			std::cout << "You have entered an invalid unit... Lets try this again.\n\n" << std::endl;
+			goto unit_question;
+		}
+		std::cout << '\n';
+	}
+	
+	if(!_input.Drag_Coefficient)
+	{
+
+	drag_question:
+		std::cout << "What is the drag coefficient?\n> ";
+		std::cin >> _input.Drag_Coefficient;
+		if(!std::cin)
+		{
+			std::cin.clear();
+			std::cin.ignore(9999,'\n');
+			goto drag_question;
+		}
+		std::cout << '\n';
+	}
+	
+	if(!_input.Mass)
+	{
+
+	mass_question:
+		std::cout << "What is the mass of the rocket";
+		if(_input.Unit == Imperial)
+			std::cout << " (Pounds)?\n> ";
+		else if(_input.Unit == Metric)
+			std::cout << " (Kilograms)?\n> ";
+		std::cin >> _input.Mass;
+		if(!std::cin)
+		{
+			std::cin.clear();
+			std::cin.ignore(9999,'\n');
+			goto mass_question;
+		}
+		std::cout << '\n';
+	}
+	
+	if(!_input.Speed_of_Impact)
+	{
+
+	impact_question:
+		std::cout << "What is the desired speed of impact";
+		if(_input.Unit == Imperial)
+			std::cout << " (Feet/Second)?\n> ";
+		else if(_input.Unit == Metric)
+			std::cout << " (Meters/Second)?\n> ";
+		std::cin >> _input.Speed_of_Impact;
+		if(!std::cin)
+		{
+			std::cin.clear();
+			std::cin.ignore(9999,'\n');
+			goto impact_question;
+		}
+		std::cout << '\n';
+	}
+	
+	if(_input.Unit == Imperial)
+		CalculateParachuteDiameter_Imperial(_input);
+	else if(_input.Unit == Metric)
+		CalculateParachuteDiameter_Metric(_input);
+	else
+		std::cout << "ERROR: An error has occured while calculating the parachute dimensions." << std::endl;
+	
+}
+
+
 int main(int argc, const char * argv[])
 {
 	
 	ParachuteParameters tmpParachute;
-	tmpParachute = QueryUser();
-	
-	if(tmpParachute.Unit == Imperial)
-		CalculateParachuteDiameter_Imperial(tmpParachute);
-	else if(tmpParachute.Unit == Metric)
-		CalculateParachuteDiameter_Metric(tmpParachute);
+
+	if(argc > 1)
+	{
+		
+		if( std::string(argv[1]) != "--help" && std::string(argv[1]) != "-h" )
+			std::cout << "Input:" << std::endl;
+		
+		for (int i = 1; i < argc; i++)
+		{
+
+			int next_i = i + 1;
+
+			if( std::string(argv[i]) == "--help" || std::string(argv[i]) == "-h" )
+			{
+				printHelp();
+				exit(0);
+			}
+
+			if( std::string(argv[i]) == "--mass" || std::string(argv[i]) == "-m" )
+			{
+				tmpParachute.Mass = atof (argv[next_i]);
+				std::cout << "\tMass: " << argv[next_i] << std::endl;
+			}
+
+			if( std::string(argv[i]) == "--drag" || std::string(argv[i]) == "-d" )
+			{
+				tmpParachute.Drag_Coefficient = atof (argv[next_i]);
+				std::cout << "\tDrag Coefficient: " << argv[next_i] << std::endl;
+			}
+
+			if( std::string(argv[i]) == "--impact" || std::string(argv[i]) == "-i" )
+			{
+				tmpParachute.Speed_of_Impact = atof (argv[next_i]);
+				std::cout << "\tSpeed of Impact: " << argv[next_i] << std::endl;
+			}
+			
+			if( std::string(argv[i]) == "--units" || std::string(argv[i]) == "-u" )
+			{
+				
+				if(std::string(argv[next_i]) == "imperial")
+					tmpParachute.Unit = Imperial;
+				else if(std::string(argv[next_i]) == "metric")
+					tmpParachute.Unit = Metric;
+				else
+					std::cout << "ERROR: There was an error determining the units..." << '\n';
+				
+				std::cout << "\tUnit: " << argv[next_i] << std::endl;
+				
+			}
+
+		}
+		
+		std::cout << '\n';
+		
+		confirmInput(tmpParachute);
+
+	}
 	else
-		std::cout << "ERROR: An error has occured while calculating the parachute dimensions." << std::endl;
+	{
+		
+		tmpParachute = QueryUser();
+		
+		confirmInput(tmpParachute);
+		
+	}
 	
 	return 0;
 	
