@@ -181,7 +181,11 @@ unit_question:
 	}
 
 mass_question:
-	std::cout << "What is the mass of the rocket?\n> ";
+	std::cout << "What is the mass of the rocket";
+	if(user_data_units == Imperial)
+		std::cout << " (Pounds)?\n> ";
+	else if(user_data_units == Metric)
+		std::cout << " (Kilograms)?\n> ";
 	std::cin >> user_data_mass;
 	if(!std::cin)
 	{
@@ -191,7 +195,11 @@ mass_question:
 	}
 	
 impact_question:
-	std::cout << "What is the desired speed of impact?\n> ";
+	std::cout << "What is the desired speed of impact";
+	if(user_data_units == Imperial)
+		std::cout << " (Feet/Second)?\n> ";
+	else if(user_data_units == Metric)
+		std::cout << " (Meters/Second)?\n> ";
 	std::cin >> user_data_impact;
 	if(!std::cin)
 	{
@@ -225,16 +233,15 @@ drag_question:
 int main(int argc, const char * argv[])
 {
 	
-	ParachuteParameters Rocket1;
-	Rocket1 = QueryUser();
+	ParachuteParameters tmpParachute;
+	tmpParachute = QueryUser();
 	
-	ParachuteParameters Rocket2;
-	Rocket2.Mass = 0.453592;
-	Rocket2.Speed_of_Impact = 6.096;
-	Rocket2.Drag_Coefficient = 1.5;
-	
-	CalculateParachuteDiameter_Imperial(Rocket1);
-	CalculateParachuteDiameter_Metric(Rocket2);
+	if(tmpParachute.Unit == Imperial)
+		CalculateParachuteDiameter_Imperial(tmpParachute);
+	else if(tmpParachute.Unit == Metric)
+		CalculateParachuteDiameter_Metric(tmpParachute);
+	else
+		std::cout << "ERROR: An error has occured while calculating the parachute dimensions." << std::endl;
 	
 	return 0;
 	
