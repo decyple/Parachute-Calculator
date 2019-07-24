@@ -11,7 +11,9 @@
 #include <math.h>		// SQRT, POW
 
 
-enum units { Imperial, Metric, Unknown };
+enum units { Imperial,
+			 Metric,
+			 Unknown };
 
 
 struct ParachuteParameters
@@ -20,6 +22,8 @@ struct ParachuteParameters
 	float Speed_of_Impact;
 	float Drag_Coefficient;
 	units Unit = Unknown;
+	float Diameter;
+	float ShroudLineLength;
 };
 
 
@@ -30,36 +34,36 @@ void printDetails(float _ROCKET_MASS,
 				  float _DRAG_COEFFICIENT,
 				  float _SPEED_OF_IMPACT,
 				  float _Parachute_Diameter,
-				  bool _In_Metric)
+				   bool _In_Metric)
 {
 	
 	if(_In_Metric)
 	{
-		std::cout << "Metric Parachute Calculation Results:\n";
-		std::cout << '\n' << std::endl;
-		std::cout << "\tRocket Mass: " << _ROCKET_MASS << " Kilogram(s)" << std::endl;
-		std::cout << "\tDrag Coefficient: " << _DRAG_COEFFICIENT << std::endl;
-		std::cout << "\tSpeed of Impact: " << _SPEED_OF_IMPACT << " Meters/Second" << std::endl;
-		std::cout << "\tGravitational Constant: " << _GRAVITY << " Meters/Second²" << std::endl;
-		std::cout << "\tPi: " << _PI << std::endl;
-		std::cout << "\tAir Density: " << _AIR_DENSITY << " Kilograms/Meter³" << std::endl;
-		std::cout << '\n' << '\n' << std::endl;
-		std::cout << "\tParachute_Diameter: " << _Parachute_Diameter << " Meter(s)" << std::endl;
-		std::cout << '\n' << std::endl;
+		std::cout << "Metric Parachute Calculation Results:\n"
+				  << '\n' << std::endl
+				  << "\tRocket Mass: " << _ROCKET_MASS << " Kilogram(s)" << std::endl
+				  << "\tDrag Coefficient: " << _DRAG_COEFFICIENT << std::endl
+				  << "\tSpeed of Impact: " << _SPEED_OF_IMPACT << " Meters/Second" << std::endl
+				  << "\tGravitational Constant: " << _GRAVITY << " Meters/Second²" << std::endl
+				  << "\tPi: " << _PI << std::endl
+				  << "\tAir Density: " << _AIR_DENSITY << " Kilograms/Meter³" << std::endl
+				  << '\n' << '\n' << std::endl
+				  << "\tParachute_Diameter: " << _Parachute_Diameter << " Meter(s)" << std::endl
+				  << '\n' << std::endl;
 	}
 	else
 	{
-		std::cout << "Imperial Parachute Calculation Results:\n";
-		std::cout << '\n' << std::endl;
-		std::cout << "\tRocket Mass: " << _ROCKET_MASS << " Pound(s)" << std::endl;
-		std::cout << "\tDrag Coefficient: " << _DRAG_COEFFICIENT << std::endl;
-		std::cout << "\tSpeed of Impact: " << _SPEED_OF_IMPACT << " Feet/Second" << std::endl;
-		std::cout << "\tGravitational Constant: " << _GRAVITY << " Feet/Second²" << std::endl;
-		std::cout << "\tPi: " << _PI << std::endl;
-		std::cout << "\tAir Density: " << _AIR_DENSITY << " Pounds/Feet³" << std::endl;
-		std::cout << '\n' << '\n' << std::endl;
-		std::cout << "\tParachute_Diameter: " << _Parachute_Diameter << " Inche(s)" << std::endl;
-		std::cout << '\n' << std::endl;
+		std::cout << "Imperial Parachute Calculation Results:\n"
+				  << '\n' << std::endl
+				  << "\tRocket Mass: " << _ROCKET_MASS << " Pound(s)" << std::endl
+				  << "\tDrag Coefficient: " << _DRAG_COEFFICIENT << std::endl
+				  << "\tSpeed of Impact: " << _SPEED_OF_IMPACT << " Feet/Second" << std::endl
+				  << "\tGravitational Constant: " << _GRAVITY << " Feet/Second²" << std::endl
+				  << "\tPi: " << _PI << std::endl
+				  << "\tAir Density: " << _AIR_DENSITY << " Pounds/Feet³" << std::endl
+				  << '\n' << '\n' << std::endl
+				  << "\tParachute_Diameter: " << _Parachute_Diameter << " Inche(s)" << std::endl
+				  << '\n' << std::endl;
 	}
 	
 }
@@ -321,17 +325,12 @@ void confirmInput(ParachuteParameters* _input)
 		std::cout << '\n';
 	}
 	
-	if(_input->Unit == Imperial)
-		CalculateParachuteDiameter_Imperial(_input);
-	else if(_input->Unit == Metric)
-		CalculateParachuteDiameter_Metric(_input);
-	else
-		std::cout << "ERROR: An error has occured while calculating the parachute dimensions." << std::endl;
-	
 }
 
 
-void processArguments(int* _argc, const char* _argv[], ParachuteParameters* _tmpParachute)
+void processArguments(int* _argc,
+					  const char* _argv[],
+					  ParachuteParameters* _tmpParachute)
 {
 	
 	if( std::string(_argv[1]) != "--help" && std::string(_argv[1]) != "-h" )
@@ -387,7 +386,31 @@ void processArguments(int* _argc, const char* _argv[], ParachuteParameters* _tmp
 }
 
 
-int main(int argc, const char* argv[])
+float CalculateShroudLines(ParachuteParameters* _input, bool _In_Metric)
+{
+	
+	std::cout << "\tShroud Line Length:\n\n";
+	
+	if(_In_Metric)
+	{
+		std::cout << "\t\tStandard (default): " << (_input->Diameter * 1.5) << " meters" << std::endl;
+		std::cout << "\t\t              Loop: " << (_input->Diameter * 2) << " meters" << std::endl;
+	}
+	else
+	{
+		std::cout << "\t\tStandard (default): " << (_input->Diameter * 1.5) << " inches" << std::endl;
+		std::cout << "\t\t              Loop: " << (_input->Diameter * 2) << " inches" << std::endl;
+	}
+	
+	std::cout << '\n' << '\n';
+	
+	return _input->Diameter * 1.5;
+	
+}
+
+
+int main(int argc,
+		 const char* argv[])
 {
 	
 	ParachuteParameters tmpParachute;
@@ -407,6 +430,15 @@ int main(int argc, const char* argv[])
 		QueryUser(ptr2_tmpParachute);
 		confirmInput(ptr2_tmpParachute);
 	}
+	
+	if(tmpParachute.Unit == Imperial)
+		tmpParachute.Diameter = CalculateParachuteDiameter_Imperial(ptr2_tmpParachute);
+	else if(tmpParachute.Unit == Metric)
+		tmpParachute.Diameter = CalculateParachuteDiameter_Metric(ptr2_tmpParachute);
+	else
+		std::cout << "ERROR: An error has occured while calculating the parachute dimensions." << std::endl;
+	
+	tmpParachute.ShroudLineLength = CalculateShroudLines(ptr2_tmpParachute, tmpParachute.Unit);
 	
 	return 0;
 	
